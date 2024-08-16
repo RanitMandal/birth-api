@@ -18,6 +18,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.birthCertificate.config.TokenBlacklistService;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 
@@ -29,6 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwtTokenHelper jwtTokenHelper;
+	
+	@Autowired
+	private TokenBlacklistService tokenBlacklistService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -69,6 +74,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		} else {
 			System.out.println("Jwt token does not begin with Bearer");
 		}
+		
+		
+		// 2. Handle Logout Request
+        if ("/api/v1/auth/logout".equals(request.getRequestURI()) && "POST".equals(request.getMethod())) {
+            System.out.println("Processing logout request");
+            // Blacklist the token and return response
+            if (username != null) {
+                tokenBlacklistService.addToBlacklist(token);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("Successfully logged out");
+                response.getWriter().flush();  // Ensure response is sent
+                return;  // Stop further processing
+            } else {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid token or username.");
+                return;  // Stop further processing
+            }
+        }
+
+        // 3. Check if the token is blacklisted
+        if (username != null && tokenBlacklistService.isTokenBlacklisted(token)) {
+            System.out.println("Token is blacklisted");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "This token is blacklisted.");
+            return;  // Stop further processing
+        }
 
 		// once we get the token , now validate
 

@@ -1,8 +1,6 @@
 package com.birthCertificate.controllers;
 
 import java.security.Principal;
-import java.util.Optional;
-
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
@@ -11,18 +9,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.birthCertificate.config.TokenBlacklistService;
 import com.birthCertificate.entities.User;
 import com.birthCertificate.exceptions.ApiException;
 import com.birthCertificate.payloads.JwtAuthRequest;
@@ -47,6 +44,9 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private TokenBlacklistService tokenBlacklistService;
 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
@@ -57,8 +57,6 @@ public class AuthController {
 		JwtAuthResponse response = new JwtAuthResponse();
 		response.setToken(token);
 		response.setUser(this.mapper.map((User) userDetails, UserDto.class));
-		response.setCode(0);
-		
 		return new ResponseEntity<JwtAuthResponse>(response, HttpStatus.OK);
 	}
 
@@ -69,6 +67,7 @@ public class AuthController {
 
 		try {
 
+
 			this.authenticationManager.authenticate(authenticationToken);
 
 		} catch (BadCredentialsException e) {
@@ -77,6 +76,7 @@ public class AuthController {
 		}
 
 	}
+
 
 	// register new user api
 
@@ -96,6 +96,21 @@ public class AuthController {
 	public ResponseEntity<UserDto> getUser(Principal principal) {
 		User user = this.userRepo.findByEmail(principal.getName()).get();
 		return new ResponseEntity<UserDto>(this.mapper.map(user, UserDto.class), HttpStatus.OK);
+	}
+	
+	
+	@PostMapping("/logout")
+	public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+	    // Extract token from the Authorization header (Bearer scheme)
+	    if (token != null && token.startsWith("Bearer ")) {
+	        token = token.substring(7);
+	    } else {
+	        return new ResponseEntity<>("Token is missing", HttpStatus.BAD_REQUEST);
+	    }
+
+	    // Add token to blacklist
+	    tokenBlacklistService.addToBlacklist(token);
+	    return new ResponseEntity<>("Successfully logged out", HttpStatus.OK);
 	}
 
 }
