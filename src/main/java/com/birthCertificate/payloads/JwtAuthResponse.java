@@ -8,4 +8,6 @@ public class JwtAuthResponse {
 	private String token;
 	
 	private UserDto user;
+	
+	private int code;
 }

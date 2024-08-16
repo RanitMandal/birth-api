@@ -2,6 +2,8 @@ package com.birthCertificate.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,7 @@ public class UploadCertificateController {
 	private UpldCrtService upldCrtService;
 	
 	@PostMapping("/user/{userId}/upldCertificate")
-	public ResponseEntity<UpldCrtDto> createUploadCertificate(@RequestBody UpldCrtDto  upldCrtDto, @PathVariable Integer userId) {
+	public ResponseEntity<UpldCrtDto> createUploadCertificate(@RequestBody UpldCrtDto upldCrtDto, @PathVariable Integer userId) {
 		UpldCrtDto createUpldCrt = this.upldCrtService.createUpldCrt(upldCrtDto, userId);
 		return new ResponseEntity<UpldCrtDto>(createUpldCrt, HttpStatus.CREATED);
 	}

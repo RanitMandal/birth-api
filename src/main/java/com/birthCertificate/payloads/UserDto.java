@@ -5,14 +5,12 @@ import java.util.Set;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+
 import javax.validation.constraints.Size;
 
-import com.birthCertificate.entities.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +41,7 @@ public class UserDto {
 	@NotEmpty
 	private String about;
 	
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private Set<RoleDto> roles = new HashSet<>();
 	
 	

@@ -1,6 +1,5 @@
 package com.birthCertificate.entities;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,20 +17,19 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CertificateNumber {
-        
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
 
-	    @Column(nullable = false)
-	    private String prefix;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-	    @Column(nullable = false)
-	    private int year;
+	@Column(nullable = false)
+	private String prefix;
 
-	    @Column(nullable = false, unique = true)
-	    private int sequenceNumber;
+	@Column(nullable = false)
+	private int year;
+
+	@Column(nullable = false, unique = true)
+	private int sequenceNumber;
 
 	// Getters and Setters
 }
-
