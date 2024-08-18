@@ -2,7 +2,6 @@ package com.birthCertificate.controllers;
 
 import java.util.List;
 
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.birthCertificate.payloads.ApiResponse;
@@ -39,12 +39,13 @@ public class UserController {
 	// PUT- update user
 
 	@PutMapping("/{userId}")
-	public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable("userId") Integer uid) {
+	public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto,
+			@PathVariable("userId") Integer uid) {
 		UserDto updatedUser = this.userService.updateUser(userDto, uid);
 		return ResponseEntity.ok(updatedUser);
 	}
 
-	//ADMIN
+	// ADMIN
 	// DELETE -delete user
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{userId}")
@@ -55,8 +56,15 @@ public class UserController {
 
 	// GET - user get
 	@GetMapping("/")
-	public ResponseEntity<List<UserDto>> getAllUsers() {
+	public ResponseEntity<List<UserDto>> getAllUsers(
+			@RequestParam(value = "emailId", defaultValue = "null", required = false) String emailId) {
+		
+		String Value = "null";
+		if(emailId.equals(Value)){
 		return ResponseEntity.ok(this.userService.getAllUsers());
+		}else {
+			return ResponseEntity.ok(this.userService.getUserByEmail(emailId));
+		}
 	}
 
 	// GET - user get
@@ -64,11 +72,13 @@ public class UserController {
 	public ResponseEntity<UserDto> getSingleUser(@PathVariable Integer userId) {
 		return ResponseEntity.ok(this.userService.getUserById(userId));
 	}
-	
+
 	// GET - user get
-	@GetMapping("/getUserByEmail/{emailId}")
+	@GetMapping("/getUserByEmail")
 	public ResponseEntity<List<UserDto>> getSinglveUserByEmail(@PathVariable String emailId) {
-		return ResponseEntity.ok(this.userService.getUserByEmail(emailId));
+		
+			return ResponseEntity.ok(this.userService.getUserByEmail(emailId));
+		
 	}
 
 }

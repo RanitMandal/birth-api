@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.birthCertificate.payloads.ApiResponse;
@@ -28,27 +30,39 @@ public class UploadCertificateController {
 
 	@Autowired
 	private UpldCrtService upldCrtService;
-	
+
 	@PostMapping("/user/{userId}/upldCertificate")
-	public ResponseEntity<UpldCrtDto> createUploadCertificate(@RequestBody UpldCrtDto upldCrtDto, @PathVariable Integer userId) {
+	public ResponseEntity<UpldCrtDto> createUploadCertificate(@RequestBody UpldCrtDto upldCrtDto,
+			@PathVariable Integer userId) {
 		UpldCrtDto createUpldCrt = this.upldCrtService.createUpldCrt(upldCrtDto, userId);
 		return new ResponseEntity<UpldCrtDto>(createUpldCrt, HttpStatus.CREATED);
 	}
 
-
 	@GetMapping("/certs/{certId}")
 	public ResponseEntity<UpldCrtDto> getUploadCertificateByCertId(@PathVariable Integer certId) {
-	    // Log the received certId
-	    System.out.println("Received certId: " + certId);
+		// Log the received certId
+		System.out.println("Received certId: " + certId);
 
-	    UpldCrtDto upldCrtDto = this.upldCrtService.getUpldCrtById(certId);
-	    return new ResponseEntity<>(upldCrtDto, HttpStatus.OK);
+		UpldCrtDto upldCrtDto = this.upldCrtService.getUpldCrtById(certId);
+		return new ResponseEntity<>(upldCrtDto, HttpStatus.OK);
 	}
-	
+
+//	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/getAllUpldCertificate")
-	public ResponseEntity<List<UpldCrtResponse>> getAllUploadCertificate() {
-		List<UpldCrtResponse> upldCrtResponses = this.upldCrtService.getAllUpldCrt();
-		return ResponseEntity.ok(upldCrtResponses);
+	public ResponseEntity<List<UpldCrtResponse>> getAllUploadCertificate(
+			@RequestParam(value = "certificateNo", defaultValue = "null", required = false) String certificateNo) {
+
+		String Value = "null";
+
+		if (certificateNo.equals(Value)) {
+
+			List<UpldCrtResponse> upldCrtResponses = this.upldCrtService.getAllUpldCrt();
+			return ResponseEntity.ok(upldCrtResponses);
+		} else {
+
+			List<UpldCrtResponse> upldCrtResponses = this.upldCrtService.getUpldCrtByCrtifcatrNo(certificateNo);
+			return ResponseEntity.ok(upldCrtResponses);
+		}
 	}
 
 	@DeleteMapping("/deleteUpldCert/{certId}")
@@ -57,16 +71,15 @@ public class UploadCertificateController {
 		return new ApiResponse("UpldCert is successfully deleted !!", true);
 	}
 
-
 	@PutMapping("/editUpldCert/{certId}")
-	public ResponseEntity<UpldCrtDto> updateUploadCertificate(@RequestBody UpldCrtDto upldCrtDto, @PathVariable Integer certId) {
+	public ResponseEntity<UpldCrtDto> updateUploadCertificate(@RequestBody UpldCrtDto upldCrtDto,
+			@PathVariable Integer certId) {
 
 		UpldCrtDto updatePost = this.upldCrtService.updateUpldCrt(upldCrtDto, certId);
 		return new ResponseEntity<UpldCrtDto>(updatePost, HttpStatus.OK);
 
 	}
 
-	
 	@PostMapping("/getUpldCertificateNo")
 	public ResponseEntity<UpldCrtDto> getUpldCertificateNo(@RequestBody uplodCertRequest input) {
 
@@ -74,6 +87,5 @@ public class UploadCertificateController {
 		return new ResponseEntity<>(upldCrtDto, HttpStatus.OK);
 
 	}
-	
-	
+
 }

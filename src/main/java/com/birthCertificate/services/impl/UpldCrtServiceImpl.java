@@ -3,6 +3,7 @@ package com.birthCertificate.services.impl;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -15,12 +16,10 @@ import com.birthCertificate.entities.UpldCrt;
 import com.birthCertificate.entities.User;
 import com.birthCertificate.payloads.UpldCrtDto;
 import com.birthCertificate.payloads.UpldCrtResponse;
-import com.birthCertificate.payloads.uplodCertRequest;
 import com.birthCertificate.repositories.UpldCrtRepo;
 import com.birthCertificate.repositories.UserRepo;
 import com.birthCertificate.services.UpldCrtService;
 
-import io.swagger.v3.oas.annotations.servers.Server;
 
 import com.birthCertificate.exceptions.ResourceNotFoundException;
 
@@ -131,5 +130,16 @@ public class UpldCrtServiceImpl implements UpldCrtService{
 				.orElseThrow(() -> new ResourceNotFoundException("upldCrt", "certNo",0));
 	        return this.modelMapper.map(upldCrt, UpldCrtDto.class);
 	}
+
+	@Override
+	public List<UpldCrtResponse> getUpldCrtByCrtifcatrNo(String certificateNo) {
+		Optional<UpldCrt> find = this.upldCrtRepo.findByCertificateNo(certificateNo);
+		 
+		 List<UpldCrtResponse> crtResponses = find.stream().map((crt) -> this.modelMapper.map(crt, UpldCrtResponse.class))
+					.collect(Collectors.toList());        
+
+			return crtResponses;
+	}
+
 
 }

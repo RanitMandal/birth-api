@@ -10,4 +10,6 @@ public class JwtAuthResponse {
 	private UserDto user;
 	
 	private int code;
+	
+	
 }

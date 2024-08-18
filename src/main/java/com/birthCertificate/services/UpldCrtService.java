@@ -16,6 +16,9 @@ public interface UpldCrtService {
 	UpldCrtDto getUpldCrtById(Integer certId);
 
 	List<UpldCrtResponse> getAllUpldCrt();
+	
+	List<UpldCrtResponse> getUpldCrtByCrtifcatrNo(String certificateNo);
+	
 
 	void deleteUpldCrt(Integer certId);
 	
